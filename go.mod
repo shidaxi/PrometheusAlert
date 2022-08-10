@@ -7,6 +7,7 @@ require (
 	github.com/astaxie/beego v1.12.3
 	github.com/baidubce/bce-sdk-go v0.9.111
 	github.com/go-gomail/gomail v0.0.0-20160411212932-81ebce5c23df
+	github.com/go-redis/redis/v8 v8.11.5
 	github.com/go-sql-driver/mysql v1.6.0
 	github.com/go-telegram-bot-api/telegram-bot-api/v5 v5.5.1
 	github.com/lib/pq v1.10.4

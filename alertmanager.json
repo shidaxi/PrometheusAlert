@@ -1,0 +1,47 @@
+{
+        "receiver": "email-logs",
+        "status": "firing",
+        "alerts": [
+          {
+            "status": "firing",
+            "labels": {
+              "alertname": "CPUUsageAbove20%",
+              "instance": "node-exporter:9100",
+              "job": "node-exporter",
+              "monitor": "my-project",
+              "severity": "warn",
+              "app": "a0examplegolang",
+              "env": "qa",
+              "team": "raptors"
+            },
+            "annotations": {
+              "larkBotIds": "xxxxxxxx-1661-xxxx-9cdb-xxxxxxxxxxxx,xxxxxxxx-1661-xxxx-9cdb-xxxxxxxxxxxx",
+              "dashboard": "www.prometheus.io",
+              "description": "CPU usage on node-exporter:9100 has reached 60"
+            },
+            "startsAt": "2020-04-30T08:03:17.309164516Z",
+            "endsAt": "0001-01-01T00:00:00Z",
+            "generatorURL": "http://0ab6d9955c65:9090/graph",
+            "fingerprint": "9c558a8c20c2ba08"
+          }
+        ],
+        "groupLabels": {
+          "alertname": "CPUUsageAbove20%",
+          "team": "raptors"
+        },
+        "commonLabels": {
+          "alertname": "CPUUsageAbove",
+          "instance": "node-exporter:9100",
+          "job": "node-exporter",
+          "monitor": "my-project",
+          "severity": "warn",
+          "team": "raptors"
+        },
+        "commonAnnotations": {
+          "dashboard": "www.prometheus.io",
+          "description": "CPU usage on node-exporter:9100 has reached 60"
+        },
+        "externalURL": "http://5493399b56dc:9093",
+        "version": "4",
+        "groupKey": "{}/{team=~\"^(?:(raptors|leafs))$\"}:{alertname=\"CPUUsageAbove20%\", team=\"raptors\"}"
+}

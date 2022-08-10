@@ -15,6 +15,8 @@ import (
 	"time"
 )
 
+const LARK_BOT_API_BASE = "https://open.larksuite.com/open-apis/bot/v2/hook/"
+
 type PrometheusAlertController struct {
 	beego.Controller
 }
@@ -183,6 +185,7 @@ func (c *PrometheusAlertController) PrometheusAlert() {
 				//路由处理,可能存在多个路由都匹配成功，所以这里返回的是个列表sMsg
 				Return_pMsgs := AlertRouterSet(xalert, pMsg, PrometheusAlertTpl.Tpl)
 				for _, Return_pMsg := range Return_pMsgs {
+
 					//logs.Debug("当前模版：", Return_pMsg.TplName)
 					//获取渲染后的模版
 					err, msg := TransformAlertMessage(p_alertmanager_json, Return_pMsg.Tpl)
@@ -225,7 +228,7 @@ func AlertRouterSet(xalert map[string]interface{}, PMsg PrometheusAlertMsg, Tpl 
 	return_Msgs := []PrometheusAlertMsg{}
 	//原有的参数不变
 	PMsg.Tpl = Tpl
-	return_Msgs = append(return_Msgs, PMsg)
+	//return_Msgs = append(return_Msgs, PMsg)
 	//循环检测现有的路由规则，找到匹配的目标后，替换发送目标参数
 	for _, router_value := range GlobalAlertRouter {
 		LabelMap := []LabelMap{}
@@ -294,6 +297,27 @@ func AlertRouterSet(xalert map[string]interface{}, PMsg PrometheusAlertMsg, Tpl 
 			return_Msgs = append(return_Msgs, PMsg)
 		}
 
+	}
+
+	// get url from alert message annotations "paurl"
+	var larkBotIds []string
+	if annotations, ok1 := xalert["annotations"].(map[string]interface{}); ok1 {
+		if ids, ok2 := annotations["larkBotIds"].(string); ok2 && len(ids) > 0 {
+			larkBotIds = append(larkBotIds, strings.Split(ids, ",")...)
+		}
+	}
+
+	if labels, ok1 := xalert["labels"].(map[string]interface{}); ok1 {
+		app := labels["app"].(string)
+		env := labels["env"].(string)
+		if len(app) > 0 && len(env) > 0 {
+			larkBotIds = append(larkBotIds, getAppNotifyLarkIds(app, env)...)
+		}
+	}
+	larkBotIds = removeDuplicateString(larkBotIds)
+	for _, larkBotId := range larkBotIds {
+		PMsg.Fsurl = LARK_BOT_API_BASE + larkBotId
+		return_Msgs = append(return_Msgs, PMsg)
 	}
 
 	return return_Msgs
