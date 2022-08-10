@@ -5,7 +5,7 @@
           {
             "status": "firing",
             "labels": {
-              "alertname": "CPUUsageAbove20%",
+              "alertname": "TestAlert",
               "instance": "node-exporter:9100",
               "job": "node-exporter",
               "monitor": "my-project",

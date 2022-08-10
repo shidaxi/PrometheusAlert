@@ -228,7 +228,37 @@ func AlertRouterSet(xalert map[string]interface{}, PMsg PrometheusAlertMsg, Tpl 
 	return_Msgs := []PrometheusAlertMsg{}
 	//原有的参数不变
 	PMsg.Tpl = Tpl
-	return_Msgs = append(return_Msgs, PMsg)
+
+	// get larkBotIds from annotations
+	var larkBotIds []string
+	if annotations, ok1 := xalert["annotations"].(map[string]interface{}); ok1 {
+		if ids, ok2 := annotations["larkBotIds"].(string); ok2 && len(ids) > 0 {
+			larkBotIds = append(larkBotIds, strings.Split(ids, ",")...)
+		}
+	}
+
+	// get larkBotIds from appworks app config in redis
+	if labels, ok1 := xalert["labels"].(map[string]interface{}); ok1 {
+		app, _ := labels["app"].(string)
+		env, _ := labels["env"].(string)
+		if len(app) > 0 && len(env) > 0 {
+			larkBotIds = append(larkBotIds, getAppNotifyLarkIds(app, env)...)
+		}
+	}
+	// uniq
+	larkBotIds = removeDuplicateString(larkBotIds)
+
+	// if get nothing, use original
+	if len(larkBotIds) == 0 {
+		return_Msgs = append(return_Msgs, PMsg)
+	} else {
+		// else append new messages of each larkBotId
+		for _, larkBotId := range larkBotIds {
+			PMsg.Fsurl = LARK_BOT_API_BASE + larkBotId
+			return_Msgs = append(return_Msgs, PMsg)
+		}
+	}
+
 	//循环检测现有的路由规则，找到匹配的目标后，替换发送目标参数
 	for _, router_value := range GlobalAlertRouter {
 		LabelMap := []LabelMap{}
@@ -297,36 +327,6 @@ func AlertRouterSet(xalert map[string]interface{}, PMsg PrometheusAlertMsg, Tpl 
 			return_Msgs = append(return_Msgs, PMsg)
 		}
 
-	}
-
-	// get larkBotIds from annotations
-	var larkBotIds []string
-	if annotations, ok1 := xalert["annotations"].(map[string]interface{}); ok1 {
-		if ids, ok2 := annotations["larkBotIds"].(string); ok2 && len(ids) > 0 {
-			larkBotIds = append(larkBotIds, strings.Split(ids, ",")...)
-		}
-	}
-
-	// get larkBotIds from appworks app config in redis
-	if labels, ok1 := xalert["labels"].(map[string]interface{}); ok1 {
-		app := labels["app"].(string)
-		env := labels["env"].(string)
-		if len(app) > 0 && len(env) > 0 {
-			larkBotIds = append(larkBotIds, getAppNotifyLarkIds(app, env)...)
-		}
-	}
-	// uniq
-	larkBotIds = removeDuplicateString(larkBotIds)
-
-	// if get nothing, use original
-	if len(larkBotIds) == 0 {
-		return_Msgs = append(return_Msgs, PMsg)
-	} else {
-		// else append new messages of each larkBotId
-		for _, larkBotId := range larkBotIds {
-			PMsg.Fsurl = LARK_BOT_API_BASE + larkBotId
-			return_Msgs = append(return_Msgs, PMsg)
-		}
 	}
 
 	return return_Msgs

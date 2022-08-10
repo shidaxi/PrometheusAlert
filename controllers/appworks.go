@@ -55,7 +55,8 @@ func getAppConfig(app string, env string) AppConfig {
 }
 func getAppNotifyLarkIds(app string, env string) []string {
 	var larkBotIds []string
-	for k, _ := range getAppConfig(app, env).Notify.Alert["larkBot"] {
+	larkBot, _ := getAppConfig(app, env).Notify.Alert["larkBot"]
+	for k, _ := range larkBot {
 		larkBotIds = append(larkBotIds, k)
 	}
 	return larkBotIds
@@ -63,7 +64,7 @@ func getAppNotifyLarkIds(app string, env string) []string {
 
 func removeDuplicateString(strSlice []string) []string {
 	allKeys := make(map[string]bool)
-	list := []string{}
+	var list []string
 	for _, item := range strSlice {
 		if _, value := allKeys[item]; !value {
 			allKeys[item] = true
